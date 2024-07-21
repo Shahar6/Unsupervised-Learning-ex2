@@ -5,9 +5,9 @@ import torchvision
 import torchvision.transforms as transforms
 import torch
 
-
 k = int(input('enter the amount of clusters: '))
 data_size = -1
+
 
 def plot_clusters(data, labels, title):
     plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', s=50)
@@ -27,7 +27,7 @@ def calc_cost(V, C, Z, data):
 
 def update_V(V, C, Z, data):
     V = V.clone().detach().requires_grad_(True)
-    optimizer = torch.optim.Adam([V], lr=0.01)
+    optimizer = torch.optim.Adam([V], lr=0.001)
     for iteration in range(300):
         optimizer.zero_grad()
         loss = calc_cost(V, C, Z, data)
@@ -41,7 +41,7 @@ def update_V(V, C, Z, data):
 
 def update_C(V, C, Z, data):
     C = C.clone().detach().requires_grad_(True)
-    optimizer = torch.optim.Adam([C], lr=0.01)
+    optimizer = torch.optim.Adam([C], lr=0.001)
     for iteration in range(300):
         optimizer.zero_grad()  # Clear the gradients
         loss = calc_cost(V, C, Z, data)  # Compute the loss
@@ -82,7 +82,7 @@ def train(V, C, Z, data, loops):
     return V, C, Z, loops
 
 
-blobs_data, blobs_labels = make_blobs(n_samples=k*100, cluster_std=0.8, centers=k, n_features=3)#, random_state=0)
+blobs_data, blobs_labels = make_blobs(n_samples=k*100, cluster_std=0.8, centers=k, n_features=3)  # , random_state=0)
 
 V = np.array([[1, 0], [0, 1], [0, 0]])
 Z = np.zeros(k * 100)
@@ -100,7 +100,6 @@ plot_clusters(blobs_data @ V.detach(), Z, 'initial clustering')
 V, C, Z, iters = train(V, C, Z, blobs_data, iters)
 plot_clusters(blobs_data @ V.detach(), blobs_labels, f'{iters} training iterations wanted result')
 plot_clusters(blobs_data @ V.detach(), Z, f'{iters} training iterations result')
-
 
 # MNIST:
 data_size = 4000
@@ -127,7 +126,7 @@ plot_clusters(images @ V.detach(), labels, 'correct labels for data')
 plot_clusters(images @ V.detach(), Z, 'initial clustering')
 
 k = 10
-iters = int(input('iterations to train: '))
+iters = int(input('max iterations to train(stops earlier if unnecessary): '))
 V, C, Z, iters = train(V, C, Z, images, iters)
 
 plot_clusters(images @ V.detach(), labels, f'{iters} training iterations wanted result')
